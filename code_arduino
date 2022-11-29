@@ -1,0 +1,58 @@
+#include <Wire.h> 
+#include <LiquidCrystal_I2C.h>// Para instalar las librerias es asi
+
+int temp;
+int temp1;
+int humedad;
+int rango,Por;
+int val;
+int tempPin=1;
+
+int enA = 3;
+int in1 = 6;
+int in2 = 7;
+
+
+LiquidCrystal_I2C lcd(0x27,16,2);
+void setup() {
+  Serial.begin (9600);
+  pinMode(tempPin, INPUT);
+  lcd.init();
+  lcd.backlight();
+  pinMode(enA, OUTPUT); 
+  pinMode(in1, OUTPUT);
+  pinMode(in2, OUTPUT); 
+  digitalWrite(in1, LOW);
+  digitalWrite(in2, LOW);
+}
+void loop(){
+  val=analogRead(tempPin);
+  float mv = (val / 1024.0)*5000.0;
+  float temp1 = mv / 10;
+  rango = map(temp1, 15, 50, 25.5, 255);
+  Por = map(rango,0,255,0,100);
+
+  digitalWrite(in1, HIGH);
+  digitalWrite(in2, LOW); 
+  analogWrite(enA, 255);
+
+  lcd.setCursor(0,0);
+  lcd.print("Temperatura: ");
+  lcd.print(temp1);
+  lcd.print("C");
+  lcd.setCursor(0,1);
+  lcd.print("Vel Motor: ");
+  if  (rango<0){
+    analogWrite(enA, 0);
+    lcd.print(0);
+  }
+  else{
+    analogWrite(enA, rango);
+    lcd.print(Por);
+  }
+  lcd.print("%");
+  
+
+  delay (500); // se puede modificarsegun el tiempo que quieras que prenda y apague el lcd
+}    
+// copiamos la direccion terminacion hex, y la pegamos en la simulacion
